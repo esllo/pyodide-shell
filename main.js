@@ -34,9 +34,9 @@
     shell.scroll(0, shell.scrollHeight);
   }
   function focusInput() {
-    input.focus();
+    input.focus({ preventScroll: true });
   }
-  function onShellInput(event) {
+  async function onShellInput(event) {
     if (event.keyCode === 13 || event.code.toLowerCase() === "enter") {
       event.preventDefault();
       if (py && input.textContent.trim()) {
@@ -45,7 +45,10 @@
         if (line.startsWith("#load ")) {
           const package = line.substr(6);
           if (package) {
-            py.loadPackage(package);
+            sline.style.display = "none";
+            await py.loadPackage(package);
+            sline.style.display = "block";
+            focusInput();
           }
         } else {
           try {
