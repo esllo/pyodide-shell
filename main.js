@@ -8,8 +8,8 @@
 
   const log = console.log;
   const error = console.error;
-  console.log = (arg) => insertLine(arg, 2);
-  console.error = (arg) => insertLine(arg, 1);
+  console.log = (arg) => (log(arg), insertLine(arg, 2));
+  console.error = (arg) => (error(arg), insertLine(arg, 1));
 
   async function script() {
     let pyodide = await loadPyodide({
@@ -50,6 +50,15 @@
             sline.style.display = "block";
             focusInput();
           }
+        } else if (line === "#packages") {
+          const items = await fetch(
+            "https://api.github.com/repos/pyodide/pyodide/contents/packages"
+          ).then((e) => e.json());
+          // dir: size === 0
+          const packages = items
+            .filter(({ size }) => size === 0)
+            .map(({ name }) => name);
+          insertLine(packages.join(", "), 2);
         } else {
           try {
             const result = py.runPython(line);
